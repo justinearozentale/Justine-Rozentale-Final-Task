@@ -2,6 +2,7 @@ import { test } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { SignupPage } from '../pages/SignupPage';
 import { AccountInfoPage } from '../pages/AccountInfoPage';
+import { AccountCreated } from '../pages/AccountCreated';
 
 test.describe('User Registration Flow', () => {
 
@@ -9,6 +10,7 @@ test('TC-SHOP-001 — Happy path: full shopping flow', async ({ page }) => {
     const homePage = new HomePage(page);
     const signupPage = new SignupPage(page);
     const accountInfoPage = new AccountInfoPage(page);
+    const accountCreated = new AccountCreated(page);
 
     await page.goto('/');
 
@@ -22,6 +24,9 @@ test('TC-SHOP-001 — Happy path: full shopping flow', async ({ page }) => {
     const uniqueEmail = `test_user_${Date.now()}@gmail.com`;
     await signupPage.fillSignupForm('Test User', uniqueEmail);
 
+    // Close any ad banners that might block form fields
+    await accountInfoPage.closeBottomBannerIfPresent();
+    
     await accountInfoPage.selectTitle();
     await accountInfoPage.fillName('Test User');
     await accountInfoPage.verifyEmailField();
@@ -33,10 +38,16 @@ test('TC-SHOP-001 — Happy path: full shopping flow', async ({ page }) => {
 
     await accountInfoPage.selectCountry('United States');
     await accountInfoPage.fillState('Test State');
-    await accountInfoPage.fillZipcode('12345');
+    await accountInfoPage.fillCity('Test City');
+    await accountInfoPage.fillZipCode('12345');
     await accountInfoPage.fillMobileNumber('1234567890');
 
     await accountInfoPage.clickCreateAccount();
+
+    await accountCreated.verifyAccountCreated();
+    await accountCreated.clickContinue();
+
+    await homePage.verifyLoggedInUser('Test User');
 
 });
 });

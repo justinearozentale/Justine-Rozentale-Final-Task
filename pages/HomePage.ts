@@ -19,4 +19,8 @@ export class HomePage extends BasePage{
     async clickSignUpButton() {
         await this.signUpButton.click();
     }
+
+    async verifyLoggedInUser(username: string) {
+        await expect(this.page.getByText(`Logged in as ${username}`)).toBeVisible();
+}
 }
