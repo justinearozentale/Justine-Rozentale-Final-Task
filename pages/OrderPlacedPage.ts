@@ -7,16 +7,12 @@ export class OrderPlacedPage extends BasePage{
     constructor(page: Page) {
         super(page);
 
-        this.confirmationMessage = page.getByText('Order Placed!');
-    
-        
-    
-   }
-
-   async verifyOrderPlaced() {
-        await expect(this.confirmationMessage).toBeVisible();
-        await expect(this.page).toHaveURL(/payment_done/);   
+        this.confirmationMessage = page.getByText(/ORDER PLACED!/i);
     }
 
-   
+   async verifyOrderPlaced() {
+       const orderHeader = this.page.locator('[data-qa="order-placed"] b');
+        await expect(orderHeader).toBeVisible({ timeout: 15000 });
+        await expect(orderHeader).toHaveText(/order placed/i);
+    }
 }

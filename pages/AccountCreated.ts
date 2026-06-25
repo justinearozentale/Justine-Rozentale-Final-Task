@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 export class AccountCreated extends BasePage{
@@ -9,8 +9,6 @@ constructor(page: Page) {
         super(page);
         this.successMessage = page.getByText('Account Created!');
         this.continueButton = page.getByRole('link', { name: 'Continue' });
-
-          
     }
 
     // Methods
@@ -18,7 +16,7 @@ constructor(page: Page) {
     async verifyAccountCreated() {
         await this.successMessage.waitFor({ state: 'visible' });
     }
-
+    
     async clickContinue() {
         await this.continueButton.click();
     }

@@ -17,6 +17,8 @@ export class CheckOutPage extends BasePage {
     }
 
     async clickPlaceOrder() {
-        await this.placeOrderButton.click();
+        await this.placeOrderButton.scrollIntoViewIfNeeded();
+        await this.placeOrderButton.click({ force: true });
+        await this.page.waitForURL('**/payment', { timeout: 15000 });
     }
 }

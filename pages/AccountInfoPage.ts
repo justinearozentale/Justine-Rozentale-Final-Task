@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 export class AccountInfoPage extends BasePage{
@@ -72,7 +72,7 @@ export class AccountInfoPage extends BasePage{
         await this.yearsDropdown.selectOption(year);
     }
 
-    async fillFirstName(firstName: string) {
+   async fillFirstName(firstName: string) {
         await this.firstNameInput.fill(firstName);
     }
 
@@ -97,6 +97,7 @@ export class AccountInfoPage extends BasePage{
             await this.closeAdButton.click();
         }
     }
+   
     async fillCity(city: string) {
         // Close any ad overlays that might block the field
         await this.closeBottomBannerIfPresent();
@@ -108,7 +109,7 @@ export class AccountInfoPage extends BasePage{
         // Fill the city field
         await this.cityInput.fill(city);
     }
-   async fillZipCode(zipcode: string) {
+    async fillZipCode(zipcode: string) {
         await this.zipCodeInput.fill(zipcode);
 
     }

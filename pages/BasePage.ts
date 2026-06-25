@@ -1,17 +1,21 @@
-import { expect, Page, Locator } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 
 export class BasePage {
-    readonly consentButton: Locator;
+    constructor(readonly page: Page) {}
 
-    constructor(readonly page: Page) {
-        // The "Consent" button has a role of button with the text 'Consent'
-        this.consentButton = page.getByRole('button', { name: 'Consent' });
-    }
+    //protected async waitForVisible(locator: Locator, timeout = 10000) {
+        //await locator.waitFor({ state: 'visible', timeout });
+    //}
 
-    async acceptCookiesIfPresent() {
-        // If the consent banner shows up, click it. If it doesn't, ignore it.
-        if (await this.consentButton.isVisible({ timeout: 3000 })) {
-            await this.consentButton.click();
-        }
-    }
+    //protected async clickWhenVisible(locator: Locator, timeout = 10000) {
+        //await this.waitForVisible(locator, timeout);
+        //await locator.scrollIntoViewIfNeeded();
+        //await locator.click({ force: true });
+    //}
+
+    //protected async fillWhenVisible(locator: Locator, value: string, timeout = 10000) {
+        //await this.waitForVisible(locator, timeout);
+        //await locator.scrollIntoViewIfNeeded();
+        //await locator.fill(value);
+    //}
 }
