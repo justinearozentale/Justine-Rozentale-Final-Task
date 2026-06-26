@@ -15,17 +15,20 @@ const isCI = Boolean((globalThis as any).process?.env?.CI);
 export default defineConfig({
   testDir: './tests',
   /* Keep tests sequential to avoid cross-test interference on the live site */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: isCI,
   /* Retry transient failures locally too since the target site is live */
   retries: isCI ? 2 : 0,
   /* Use a single worker locally to reduce flakiness from the live site */
-  workers: isCI ? 1 : 2,
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    launchOptions: {
+      slowMo: 150,
+    },
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: 'https://automationexercise.com/',
 
@@ -36,8 +39,14 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: 'API Tests',
+      use: { baseURL: 'https://automationexercise.com/api/' }, // Backend base
+      testMatch: /.*api.*\.spec\.ts/,
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: /.*api.*\.spec\.ts/,
     },
 
     //{
@@ -48,6 +57,7 @@ export default defineConfig({
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      testIgnore: /.*api.*\.spec\.ts/,
     },
 
     /* Test against mobile viewports. */

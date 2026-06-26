@@ -9,6 +9,7 @@ export class ProductsPage extends BasePage{
     readonly productNames: Locator;
     readonly continueShoppingButton: Locator;
     readonly productCards: Locator;
+    readonly viewProductLink: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -18,8 +19,8 @@ export class ProductsPage extends BasePage{
         this.searchButton = page.locator('#submit_search');
         this.searchedProductsHeading = page.getByRole('heading', { name: 'Searched Products' });
         this.productNames = page.locator('.productinfo p');
-        this.continueShoppingButton = page.locator('button.close-modal');
-        this.productCards = page.locator('.single-products');
+        this.continueShoppingButton = page.locator('button[data-dismiss="modal"]:has-text("Continue Shopping")');        this.productCards = page.locator('.single-products');
+        this.viewProductLink = page.getByText('View Product');
     }
 
     async addFirstProductToCart() {
@@ -61,7 +62,11 @@ async clickViewCart() {
    }   
    
    async clickContinueShopping() {
-        //await this.waitForVisible(this.continueShoppingButton);
-        await this.continueShoppingButton.click();
+          await this.continueShoppingButton.waitFor({ state: 'visible', timeout: 10000 });
+          await this.continueShoppingButton.click();
+   }
+
+   async clickViewProductLink() {
+     await this.viewProductLink.first().click();
    }
 }

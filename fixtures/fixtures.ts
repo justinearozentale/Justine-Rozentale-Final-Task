@@ -1,4 +1,4 @@
-import { test as base, type Page } from '@playwright/test';
+import { test as base, type Page, expect } from '@playwright/test';
 
 const DEFAULT_TIMEOUT = 10000;
 
@@ -19,9 +19,24 @@ export const test = base.extend({
   },
 });
 
+/**
+ * Clean and simple page loader check
+ */
 export async function waitForPageReady(page: Page, timeout = DEFAULT_TIMEOUT) {
+  // 1. Wait for the page structure to load
   await page.waitForLoadState('domcontentloaded', { timeout });
-  await page.waitForLoadState('load', { timeout });
+  await page.waitForTimeout(2000); // 2 seconds to let the server load completely
+
+  // 2. Simple check: Is the page body completely empty?
+  const pageText = await page.innerText('body').catch(() => '');
+  const isBlank = pageText.trim() === '';
+
+  // 3. If the page is completely blank, run your 2-line reload!
+  if (isBlank) {
+    console.log("⚠️ Blank page detected. Reloading...");
+    await page.reload({ waitUntil: 'load', timeout });
+    await page.waitForLoadState('domcontentloaded', { timeout });
+  }
 }
 
-export { DEFAULT_TIMEOUT };
+export { expect };

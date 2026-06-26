@@ -29,7 +29,7 @@ export class AccountInfoPage extends BasePage{
  constructor(page: Page) {
         super(page);
         
-        this.mrTitle = page.getByRole('radio', { name: 'Mr.' });
+        this.mrTitle = page.locator('#uniform-id_gender1');
         this.nameInput = page.locator('#name');
         this.emailInput = page.locator('#email');
         this.passwordInput = page.getByRole('textbox', { name: 'Password *' });
@@ -52,9 +52,8 @@ export class AccountInfoPage extends BasePage{
 
  }
    async selectTitle() {
-        await this.mrTitle.check();
-    }
-
+    await this.mrTitle.click();
+   }
     async fillName(name: string) {
         await this.nameInput.fill(name);
     }

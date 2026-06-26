@@ -37,4 +37,14 @@ export class ViewCartPage extends BasePage{
         await expect(row.locator('.cart_total .cart_total_price')).toHaveText(expectedPrice);
     }
 
+    async removeProductFromCart(rowIndex: number) {
+        await this.cartRows.nth(rowIndex).locator('.cart_quantity_delete').click();
+    }
+
+    async verifyCartIsEmpty(){
+    const emptyCartMessage = this.page.locator('#empty_cart'); 
+    await expect(emptyCartMessage).toBeVisible({ timeout: 5000 });
+    await expect(emptyCartMessage).toHaveText('Cart is empty! Click here to buy products.');
+
+}
     }

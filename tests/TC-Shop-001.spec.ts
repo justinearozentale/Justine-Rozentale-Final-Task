@@ -39,6 +39,7 @@ test('User successfully registers and is logged in @epic("Shopping") @feature("C
     await accountInfoPage.fillMobileNumber('1234567890');
 
     await accountInfoPage.clickCreateAccount();
+    await waitForPageReady(page);
     await accountCreated.verifyAccountCreated();
     await accountCreated.clickContinue();
     await homePage.verifyLoggedInUser('Test User');
@@ -80,6 +81,8 @@ test('Successful purchase @epic("Shopping") @feature("Checkout") @story("Success
     await paymentPage.fillExpirationMonth('12');
     await paymentPage.fillExpirationYear('2025');
     await paymentPage.clickPayAndConfirmOrder();
+    await page.waitForTimeout(2000);
+    await page.reload({ waitUntil: 'load' });
 
     await orderPlacedPage.verifyOrderPlaced();
   });
