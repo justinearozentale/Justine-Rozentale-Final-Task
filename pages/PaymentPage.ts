@@ -22,32 +22,26 @@ export class PaymentPage extends BasePage{
     
    
     async fillNameOnCard(name: string) {
-        //await this.waitForVisible(this.nameOnCardField);
         await this.nameOnCardField.fill(name);
     }
 
     async fillCardNumber(cardNumber: string) {
-        //await this.waitForVisible(this.cardNumberField);
         await this.cardNumberField.fill(cardNumber);
     }
 
     async fillCVC(cvc: string) {
-       // await this.waitForVisible(this.cvcField);
         await this.cvcField.fill(cvc);
     }
 
     async fillExpirationMonth(expirationMonth: string) {
-        //await this.waitForVisible(this.expirationMonthField);
         await this.expirationMonthField.fill(expirationMonth);
     }
 
     async fillExpirationYear(expirationYear: string) {
-        //await this.waitForVisible(this.expirationYearField);
         await this.expirationYearField.fill(expirationYear);
     }
 
     async clickPayAndConfirmOrder() {
-       // await this.waitForVisible(this.payAndConfirmOrderButton);
         await this.payAndConfirmOrderButton.click({ force: true });
     }
 }

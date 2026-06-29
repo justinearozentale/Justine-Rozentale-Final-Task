@@ -1,17 +1,14 @@
 import { test as base, type Page, expect } from '@playwright/test';
 
-const DEFAULT_TIMEOUT = 10000;
-
 export const test = base.extend({
   page: async ({ page }, use) => {
-    // 1. Block ad servers completely so they never load
+    // 1. Block ads
     await page.route('**/*{google,doubleclick,adservice}*/**', route => route.abort());
 
-    // 2. Click the consent popup button if it appears
+    // 2. Clear consent banners
     await page.addInitScript(() => {
-      window.addEventListener('load', () => {
-        const consentButton = document.querySelector('.fc-cta-consent, button[aria-label="Consent"]') as HTMLElement | null;
-        consentButton?.click();
+      document.addEventListener('DOMContentLoaded', () => {
+        (document.querySelector('.fc-cta-consent, button[aria-label="Consent"]') as HTMLElement)?.click();
       });
     });
 
@@ -19,24 +16,24 @@ export const test = base.extend({
   },
 });
 
-/**
- * Clean and simple page loader check
- */
-export async function waitForPageReady(page: Page, timeout = DEFAULT_TIMEOUT) {
-  // 1. Wait for the page structure to load
-  await page.waitForLoadState('domcontentloaded', { timeout });
-  await page.waitForTimeout(2000); // 2 seconds to let the server load completely
+export async function waitForPageReady(page: Page) {
+  // 1. Give the page a moment to display the 500 error or blank view
+  await page.waitForTimeout(2000); 
 
-  // 2. Simple check: Is the page body completely empty?
-  const pageText = await page.innerText('body').catch(() => '');
-  const isBlank = pageText.trim() === '';
+  // 2. Check if the page title or URL shows it's stuck on a crash/blank state
+  // (Using title/URL because innerText fails when the browser tab crashes)
+  const title = await page.title().catch(() => '');
+  const url = page.url();
 
-  // 3. If the page is completely blank, run your 2-line reload!
-  if (isBlank) {
-    console.log("⚠️ Blank page detected. Reloading...");
-    await page.reload({ waitUntil: 'load', timeout });
-    await page.waitForLoadState('domcontentloaded', { timeout });
+  // 3. If it looks like a crash or a blank screen, force a hard keyboard refresh
+  if (title.includes('500') || title.includes('working') || title === '') {
+    console.log("⚠️ Browser environment frozen by 500 error. Pressing F5 Control Key...");
+    
+    // Simulates a physical keyboard press of the F5 Refresh button from outside the page
+    await page.keyboard.press('F5');
+    
+    // Let the network recover and draw the page
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await page.waitForTimeout(1500);
   }
 }
-
-export { expect };

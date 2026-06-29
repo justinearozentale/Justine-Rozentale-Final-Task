@@ -1,78 +1,60 @@
-import { test, waitForPageReady } from '../fixtures/fixtures';
+import { test, expect } from '../fixtures/authenticatedShopPage'; 
 import { HomePage } from '../pages/HomePage';
-import { SignupPage } from '../pages/SignupPage';
-import { AccountInfoPage } from '../pages/AccountInfoPage';
-import { AccountCreated } from '../pages/AccountCreated';
 import { ProductsPage } from '../pages/ProductsPage';
 import { ViewCartPage } from '../pages/ViewCartPage';
 import { CheckOutPage } from '../pages/CheckOutPage';
 import { PaymentPage } from '../pages/PaymentPage';
 import { OrderPlacedPage } from '../pages/OrderPlacedPage';
 
+// 👇 Deletes the temporary account created by the fixture for the registration test
+test.afterEach(async ({ authenticatedShopPage, request }) => {
+  const user = (authenticatedShopPage as any).testUser;
+
+  await request.delete('/api/deleteAccount', {
+    form: {
+      email: user.email,
+      password: user.password
+    }
+  });
+  
+  console.log(`🗑️ API Cleanup: Deleted account for ${user.email}`);
+});
+
+// ==========================================
+//   1. REGISTRATION FLOW
+// ==========================================
 test.describe('Registration flow', () => {
-test('User successfully registers and is logged in @epic("Shopping") @feature("Checkout") @story("Full E2E flow") @severity("critical")', async ({ page }) => {
-    const homePage = new HomePage(page);
-    const signupPage = new SignupPage(page);
-    const accountInfoPage = new AccountInfoPage(page);
-    const accountCreated = new AccountCreated(page);
+  test('User successfully registers and is logged in @epic("Shopping") @feature("Checkout") @story("Full E2E flow") @severity("critical")', async ({ authenticatedShopPage }) => {
+    const homePage = new HomePage(authenticatedShopPage);
+    const generatedUser = (authenticatedShopPage as any).testUser;
 
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load');
-    await homePage.clickSignUpButton();
-
-    const uniqueEmail = `test_user_${Date.now()}@gmail.com`;
-    await signupPage.fillSignupForm('Test User', uniqueEmail);
-
-    await accountInfoPage.selectTitle();
-    await accountInfoPage.fillName('Test User');
-    await accountInfoPage.verifyEmailField();
-    await accountInfoPage.fillPassword('SecurePass123!');
-    await accountInfoPage.selectDateOfBirth('12', 'January', '1990');
-    await accountInfoPage.fillFirstName('Test User First Name');
-    await accountInfoPage.fillLastName('Test User Last Name');
-    await accountInfoPage.fillAddress('123 Test Street, Test City, Test Country');
-
-    await accountInfoPage.selectCountry('United States');
-    await accountInfoPage.fillState('Test State');
-    await accountInfoPage.fillCity('Test City');
-    await accountInfoPage.fillZipCode('12345');
-    await accountInfoPage.fillMobileNumber('1234567890');
-
-    await accountInfoPage.clickCreateAccount();
-    await waitForPageReady(page);
-    await accountCreated.verifyAccountCreated();
-    await accountCreated.clickContinue();
-    await homePage.verifyLoggedInUser('Test User');
+    await homePage.verifyLoggedInUser(generatedUser.name);
   });
+});
 
-
+// ==========================================
+//   2. PURCHASE FLOW
+// ==========================================
 test.describe('Purchase flow', () => {
-  test.beforeEach(async ({ page }) => {
-    const homePage = new HomePage(page);
-    const signupPage = new SignupPage(page);
+  test('Successful purchase @epic("Shopping") @feature("Checkout") @story("Successful purchase") @severity("critical")', async ({ authenticatedShopPage }) => {
+    const homePage = new HomePage(authenticatedShopPage);
+    const productsPage = new ProductsPage(authenticatedShopPage);
+    const viewCartPage = new ViewCartPage(authenticatedShopPage);
+    const checkOutPage = new CheckOutPage(authenticatedShopPage);
+    const paymentPage = new PaymentPage(authenticatedShopPage);
+    const orderPlacedPage = new OrderPlacedPage(authenticatedShopPage);
 
-    await page.goto('/');
-    await waitForPageReady(page);
-    await homePage.clickSignUpButton();
-
-    await signupPage.login('purchasetest@gmail.com', 'SecurePass123!');
-    await homePage.verifyLoggedInUser('Test User');
-  });
-
-test('Successful purchase @epic("Shopping") @feature("Checkout") @story("Successful purchase") @severity("critical")', async ({ page }) => {
-    const homePage = new HomePage(page);
-    const productsPage = new ProductsPage(page);
-    const viewCartPage = new ViewCartPage(page);
-    const checkOutPage = new CheckOutPage(page);
-    const paymentPage = new PaymentPage(page);
-    const orderPlacedPage = new OrderPlacedPage(page);
-
+    // 👇 FIX: You are already logged in by the fixture! Go straight to shopping.
+    await authenticatedShopPage.goto('/');
+    
+    // Start shopping interaction flow directly
     await homePage.clickProductsButton();
     await productsPage.addFirstProductToCart();
     await productsPage.clickViewCart();
 
     await viewCartPage.clickProceedToCheckout();
-    await checkOutPage.verifyAddressMatches('SKOLAS IELA 5 3306');
+    
+    await checkOutPage.verifyAddressMatches('123 Test Street, Test City, Test Country');
     await checkOutPage.clickPlaceOrder();
 
     await paymentPage.fillNameOnCard('Test User');
@@ -81,10 +63,9 @@ test('Successful purchase @epic("Shopping") @feature("Checkout") @story("Success
     await paymentPage.fillExpirationMonth('12');
     await paymentPage.fillExpirationYear('2025');
     await paymentPage.clickPayAndConfirmOrder();
-    await page.waitForTimeout(2000);
-    await page.reload({ waitUntil: 'load' });
-
+    
+    await authenticatedShopPage.waitForTimeout(2000);
+    await authenticatedShopPage.reload({ waitUntil: 'load' });
     await orderPlacedPage.verifyOrderPlaced();
   });
-});
 });

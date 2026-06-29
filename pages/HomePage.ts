@@ -7,8 +7,7 @@ export class HomePage extends BasePage{
     readonly emailInput: Locator;
     readonly subscribeButton: Locator;
     readonly successMessage: Locator;
-    readonly LoggedInUser: Locator;
-    
+    readonly LoggedInUser: Locator;    
     
 
     constructor(page: Page) {

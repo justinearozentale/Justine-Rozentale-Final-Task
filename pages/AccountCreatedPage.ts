@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
-export class AccountCreated extends BasePage{
+export class AccountCreatedPage extends BasePage{
     readonly successMessage: Locator;
     readonly continueButton: Locator;
 

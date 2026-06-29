@@ -1,7 +1,7 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
-export class AccountInfoPage extends BasePage{
+export class AccountInfoPage extends BasePage {
     //core details
     readonly mrTitle: Locator;
     readonly nameInput: Locator;
@@ -125,4 +125,25 @@ export class AccountInfoPage extends BasePage{
         if (await this.closeAdButton.isVisible()) {
             await this.closeAdButton.click();
         }}
+
+    /**
+     * 👇 LECTURE REQUIREMENT WORKER METHOD
+     * Wraps up all registration input sequences into a clean single action call.
+     */
+    async registerUser(user: { name: string; password: string }) {
+        await this.selectTitle();
+        await this.fillName(user.name);
+        await this.verifyEmailField();
+        await this.fillPassword(user.password);
+        await this.selectDateOfBirth('12', 'January', '1990');
+        await this.fillFirstName('Test User First Name');
+        await this.fillLastName('Test User Last Name');
+        await this.fillAddress('123 Test Street, Test City, Test Country');
+        await this.selectCountry('United States');
+        await this.fillState('Test State');
+        await this.fillCity('Test City');
+        await this.fillZipCode('12345');
+        await this.fillMobileNumber('1234567890');
+        await this.clickCreateAccount();
+    }
 }
