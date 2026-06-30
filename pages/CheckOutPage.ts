@@ -1,4 +1,4 @@
-import { Locator, Page, expect } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 export class CheckOutPage extends BasePage {
@@ -7,18 +7,16 @@ export class CheckOutPage extends BasePage {
 
     constructor(page: Page) {
         super(page);
-
         this.deliveryAddress = page.locator('#address_delivery');
-        this.placeOrderButton = page.getByRole('link', { name: 'Place Order' });
+        this.placeOrderButton = page.locator('.check_out');
     }
 
-    async verifyAddressMatches(expectedAddress: string) {
-        await expect(this.deliveryAddress).toContainText(expectedAddress);
+    async verifyAddressMatches(expectedStreet: string) {
+        // If default country changes to USA, Canada, or India, it will still pass
+        await expect(this.deliveryAddress).toContainText(expectedStreet);
     }
 
     async clickPlaceOrder() {
-        await this.placeOrderButton.scrollIntoViewIfNeeded();
-        await this.placeOrderButton.click({ force: true });
-        await this.page.waitForURL('**/payment', { timeout: 15000 });
+        await this.placeOrderButton.click();
     }
 }

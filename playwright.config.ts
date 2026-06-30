@@ -19,11 +19,15 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: isCI,
   /* Retry transient failures locally too since the target site is live */
-  retries: isCI ? 2 : 0,
+retries: 2,
   /* Use a single worker locally to reduce flakiness from the live site */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html'], 
+    ['allure-playwright', { outputFolder: 'allure-results' }] 
+  ],
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     launchOptions: {
@@ -49,43 +53,13 @@ export default defineConfig({
       testIgnore: /.*api.*\.spec\.ts/,
     },
 
-    //{
-      //name: 'firefox',
-      //use: { ...devices['Desktop Firefox'] },
-    //},
-
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
       testIgnore: /.*api.*\.spec\.ts/,
     },
+  ]
 
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });
+
 

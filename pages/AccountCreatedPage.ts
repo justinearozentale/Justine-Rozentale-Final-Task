@@ -1,11 +1,11 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
-export class AccountCreatedPage extends BasePage{
+export class AccountCreatedPage extends BasePage {
     readonly successMessage: Locator;
     readonly continueButton: Locator;
 
-constructor(page: Page) {
+    constructor(page: Page) {
         super(page);
         this.successMessage = page.getByText('Account Created!');
         this.continueButton = page.getByRole('link', { name: 'Continue' });
@@ -14,12 +14,10 @@ constructor(page: Page) {
     // Methods
     
     async verifyAccountCreated() {
-        await this.successMessage.waitFor({ state: 'visible' });
+        await expect(this.successMessage).toBeVisible();
     }
     
     async clickContinue() {
         await this.continueButton.click();
     }
-    
-    
 }

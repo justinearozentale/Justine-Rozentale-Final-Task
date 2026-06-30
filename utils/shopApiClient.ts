@@ -1,6 +1,6 @@
 import { type APIRequestContext } from '@playwright/test';
 
-// Define the custom types required by your specification sheet
+// Define the custom types
 export interface Product {
   id: number;
   name: string;
@@ -45,8 +45,7 @@ export class ShopApiClient {
    * Fetch all products
    */
   async getProducts(): Promise<ProductsResponse> {
-    // Adding './' forces Playwright to treat this strictly relative to the /api folder
-    const response = await this.request.get('./productsList');
+    const response = await this.request.get('/api/productsList');
     return response.json();
   }
 
@@ -54,7 +53,7 @@ export class ShopApiClient {
    * Search for products using a keyword
    */
   async searchProducts(keyword: string): Promise<ProductsResponse> {
-    const response = await this.request.post('./searchProduct', {
+    const response = await this.request.post('/api/searchProduct', {
       form: { search_product: keyword }
     });
     return response.json();
@@ -64,7 +63,7 @@ export class ShopApiClient {
    * Create a new user account
    */
   async createAccount(user: ShopUser): Promise<void> {
-    await this.request.post('./createAccount', {
+    await this.request.post('/api/createAccount', {
       form: { ...user }
     });
   }
@@ -73,7 +72,7 @@ export class ShopApiClient {
    * Delete an existing user account
    */
   async deleteAccount(email: string, password: string): Promise<void> {
-    await this.request.delete('./deleteAccount', {
+    await this.request.delete('/api/deleteAccount', {
       form: { email, password }
     });
   }
@@ -82,7 +81,7 @@ export class ShopApiClient {
    * Verify login credentials match
    */
   async verifyLogin(email: string, password: string): Promise<boolean> {
-    const response = await this.request.post('./verifyLogin', {
+    const response = await this.request.post('/api/verifyLogin', {
       form: { email, password }
     });
     const body = await response.json();

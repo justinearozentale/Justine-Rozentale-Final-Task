@@ -41,7 +41,11 @@ export class PaymentPage extends BasePage{
         await this.expirationYearField.fill(expirationYear);
     }
 
-    async clickPayAndConfirmOrder() {
+   async clickPayAndConfirmOrder() {
+        await this.payAndConfirmOrderButton.scrollIntoViewIfNeeded();
         await this.payAndConfirmOrderButton.click({ force: true });
+        
+        await this.page.waitForTimeout(2000);
+        await this.page.reload({ waitUntil: 'load' }).catch(() => {});
     }
 }

@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test"; 
 import { BasePage } from "./BasePage";
 
 export class AccountInfoPage extends BasePage {
@@ -12,7 +12,7 @@ export class AccountInfoPage extends BasePage {
     readonly monthsDropdown: Locator;
     readonly yearsDropdown: Locator;
    
-    //aditional details
+    //additional details
     readonly firstNameInput: Locator;
     readonly lastNameInput: Locator;
     readonly addressInput: Locator;
@@ -26,7 +26,7 @@ export class AccountInfoPage extends BasePage {
     readonly closeAdButton: Locator;
     
 
- constructor(page: Page) {
+    constructor(page: Page) {
         super(page);
         
         this.mrTitle = page.locator('#uniform-id_gender1');
@@ -49,29 +49,31 @@ export class AccountInfoPage extends BasePage {
         this.createAccountButton = page.getByRole('button', { name: 'Create Account' });
 
         this.closeAdButton = page.locator('.fa-angle-down');
+    }
 
- }
-   async selectTitle() {
-    await this.mrTitle.click();
-   }
+    async selectTitle() {
+        await this.mrTitle.click();
+    }
+
     async fillName(name: string) {
         await this.nameInput.fill(name);
     }
 
-   async verifyEmailField() {
-        await this.emailInput.waitFor({ state: 'visible' });
+    async verifyEmailField() {
+        await expect(this.emailInput).toBeVisible();
     }
 
     async fillPassword(password: string) {
         await this.passwordInput.fill(password);
     }
+
     async selectDateOfBirth(day: string, month: string, year: string) {
         await this.daysDropdown.selectOption(day);
         await this.monthsDropdown.selectOption(month);
         await this.yearsDropdown.selectOption(year);
     }
 
-   async fillFirstName(firstName: string) {
+    async fillFirstName(firstName: string) {
         await this.firstNameInput.fill(firstName);
     }
 
@@ -91,6 +93,7 @@ export class AccountInfoPage extends BasePage {
     async fillState(state: string) {
         await this.stateInput.fill(state);
     }
+
     async closeBottomBannerIfPresent() {
         if (await this.closeAdButton.isVisible()) {
             await this.closeAdButton.click();
@@ -98,19 +101,14 @@ export class AccountInfoPage extends BasePage {
     }
    
     async fillCity(city: string) {
-        // Close any ad overlays that might block the field
         await this.closeBottomBannerIfPresent();
-        
-        // Ensure field is visible and scroll into view if needed
         await this.cityInput.scrollIntoViewIfNeeded();
         await this.cityInput.waitFor({ state: 'visible' });
-        
-        // Fill the city field
         await this.cityInput.fill(city);
     }
+
     async fillZipCode(zipcode: string) {
         await this.zipCodeInput.fill(zipcode);
-
     }
 
     async fillMobileNumber(mobileNumber: string) {
@@ -124,12 +122,9 @@ export class AccountInfoPage extends BasePage {
     async closeAdIfPresent() {
         if (await this.closeAdButton.isVisible()) {
             await this.closeAdButton.click();
-        }}
+        }
+    }
 
-    /**
-     * 👇 LECTURE REQUIREMENT WORKER METHOD
-     * Wraps up all registration input sequences into a clean single action call.
-     */
     async registerUser(user: { name: string; password: string }) {
         await this.selectTitle();
         await this.fillName(user.name);

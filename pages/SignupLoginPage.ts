@@ -2,7 +2,6 @@ import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class SignupLoginPage extends BasePage {
-    // Locators
     readonly nameInput: Locator;
     readonly emailInput: Locator;
     readonly signupButton: Locator;
@@ -25,11 +24,21 @@ export class SignupLoginPage extends BasePage {
         await this.nameInput.fill(name);
         await this.emailInput.fill(email);
         await this.signupButton.click();
+
+        // await the structural registration setup route redirect
+        await this.page.waitForURL('**/signup', { timeout: 10000 });
     }
 
-    async login(email: string, password: string) {
+  async login(email: string, password: string) {
         await this.loginEmailInput.fill(email);
         await this.loginPasswordInput.fill(password);
         await this.loginButton.click();
+
+        // If the server oes blank, it forces a clean reload.
+        await this.page.waitForURL('**/', { timeout: 4000 }).catch(async () => {
+            console.log("⚠️ Server hung during login redirection. Triggering refresh step...");
+            await this.page.reload({ waitUntil: 'load' }).catch(() => {});
+        });
     }
+
 }

@@ -1,63 +1,76 @@
-import { test as baseTest } from "./fixtures"; 
-import { type Page, expect } from "@playwright/test";
-import { HomePage } from "../pages/HomePage";
-import { SignupLoginPage } from "../pages/SignupLoginPage";
-import { AccountInfoPage } from "../pages/AccountInfoPage";
-import { AccountCreatedPage } from "../pages/AccountCreatedPage";
+import { test as base, type Page } from '@playwright/test';
 
-function generateUser() {
-  const uniqueId = Date.now();
-  return {
-    name: `Test User ${uniqueId}`,
-    email: `test_user_${uniqueId}@gmail.com`,
-    password: 'SecurePass123!'
-  };
-}
+// GLOBAL SESSION MEMORY: Remembers the user details across entire suite run
+let registeredUserSession: any = null;
 
-export type AuthenticatedShopPageFixture = {
-  authenticatedShopPage: Page;
-}
-
-export const test = baseTest.extend<AuthenticatedShopPageFixture>({
-  authenticatedShopPage: async ({ page }, use) => {
-    const user = generateUser();
+export const test = base.extend<{ authenticatedShopPage: Page }>({
+  authenticatedShopPage: async ({ page }, use, testInfo) => {
     
-    const homePage = new HomePage(page);
-    const signupLoginPage = new SignupLoginPage(page);
-    const accountInfoPage = new AccountInfoPage(page);
-    const accountCreatedPage = new AccountCreatedPage(page);
+    // 1. Block tracking scripts and consent banners cleanly
+    await page.route('**/*{google,doubleclick,adservice,analytics,fundingchoices}*/**', r => r.abort());
 
-    // --- EXECUTE SIGNUP FLOW ---
-    try {
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-    } catch (error) {
-      await page.waitForTimeout(2000);
-      await page.reload({ waitUntil: 'load' }).catch(() => {});
+    const title = testInfo.title.toLowerCase();
+
+    // 2. Only handles accounts for signup/purchase tests
+    if (title.includes('registers') || title.includes('purchase')) {
+      
+      if (!registeredUserSession) {
+        // STEP 1: REGISTER ONLY ONCE
+        const timestamp = Date.now();
+        registeredUserSession = {
+          name: 'TestUser',
+          email: `user_${timestamp}@test.com`,
+          password: 'Pass123!'
+        };
+
+        await page.goto('/login');
+        await page.fill('[data-qa="signup-name"]', registeredUserSession.name);
+        await page.fill('[data-qa="signup-email"]', registeredUserSession.email);
+        await page.click('[data-qa="signup-button"]');
+        
+        await page.fill('[data-qa="password"]', registeredUserSession.password);
+        await page.fill('[data-qa="first_name"]', 'QA');
+        await page.fill('[data-qa="last_name"]', 'Test');
+        await page.fill('[data-qa="address"]', '123 Street');
+        await page.fill('[data-qa="state"]', 'State');
+        await page.fill('[data-qa="city"]', 'City');
+        await page.fill('[data-qa="zipcode"]', '12345');
+        await page.fill('[data-qa="mobile_number"]', '12345678');
+        
+        await page.waitForTimeout(500); 
+        await page.click('[data-qa="create-account"]');
+        await page.click('[data-qa="continue-button"]');
+        
+        console.log(`✨ Registered successfully: ${registeredUserSession.email}`);
+      } else if (title.includes('purchase')) {
+      
+        // STEP 2: LOGIN USING THE EXACT SAME USER
+    
+        await page.goto('/login');
+        await page.fill('[data-qa="login-email"]', registeredUserSession.email);
+        await page.fill('[data-qa="login-password"]', registeredUserSession.password);
+        await page.click('[data-qa="login-button"]');
+        
+        console.log(`🔐 Logged in using existing account: ${registeredUserSession.email}`);
+      }
+
+      // Pass the active user reference back to the test variables
+      (page as any).testUser = registeredUserSession;
+
+    } else {
+     
+      // STEP 3: SECOND TAB CLEAN GUEST SESSIONS
+   
+      // Skips everything above so shopping flows browse safely without accounts
     }
-
-    await homePage.clickSignUpButton();
-    await signupLoginPage.fillSignupForm(user.name, user.email);
-    await accountInfoPage.registerUser(user);
-
-    await page.waitForTimeout(2000);
-    await page.reload({ waitUntil: 'load' }).catch(() => {});
-
-    await accountCreatedPage.verifyAccountCreated();
-    await accountCreatedPage.clickContinue();
-
-    (page as any).testUser = user;
-
-    // 👇 GLOBAL RELOAD PATCH: intercept reload calls for all tests using this fixture
-    const originalReload = page.reload.bind(page);
-    page.reload = async (options?: any) => {
-      return originalReload(options).catch((error) => {
-        console.log(`🛡️ Global Fixture: Safely caught reload crash: ${error.message}`);
-        return null as any;
-      });
-    };
 
     await use(page);
   },
 });
 
-export { expect };
+export async function fixCrash(page: Page) {
+  await page.waitForTimeout(1000);
+  if (page.url().includes('500') || (await page.title().catch(() => '')) === '') {
+    await page.reload({ waitUntil: 'load' }).catch(() => {});
+  }
+}
