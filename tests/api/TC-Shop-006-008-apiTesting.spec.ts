@@ -1,8 +1,13 @@
 import { ShopApiClient } from '../../utils/shopApiClient';
 import { test, expect } from '@playwright/test';
+import { epic, feature, story, severity, Severity } from 'allure-js-commons';
 
 test.describe('Products API', () => {
-  test('API: GET /api/productsList returns a valid product list @epic("API") @feature("Products API") @story("List all products") @severity("critical")', async ({ request }) => {
+  test('API: GET /api/productsList returns a valid product list', async ({ request }) => {
+    await epic('API');
+    await feature('Products API');
+    await story ('List all products');
+    await severity(Severity.CRITICAL);
     
     // new API helper client
     const apiClient = new ShopApiClient(request);
@@ -36,7 +41,11 @@ test.describe('Products API', () => {
     expect(uniqueIds.size).toBe(productIds.length);
   });
 
-  test('API: POST /api/searchProduct filters items correctly @epic("API") @feature("Products API") @story("Search products") @severity("normal")', async ({ request }) => {
+  test('API: POST /api/searchProduct filters items correctly', async ({ request }) => {
+    await epic('API');
+    await feature('Products API');
+    await story ('Search products');
+    await severity(Severity.NORMAL);
     const apiClient = new ShopApiClient(request);
     const searchKeyword = 'top';
     const body = await apiClient.searchProducts(searchKeyword);
@@ -48,8 +57,11 @@ test.describe('Products API', () => {
     expect(anyMatch).toBe(true);
   });
 
-  test('API: POST /api/searchProduct with missing parameter returns 400 @epic("API") @feature("Products API") @story("Missing parameter") @severity("minor")', async ({ request }) => {
-    // 👇 FIXED: Corrected the endpoint path to map exactly to the API specifications
+  test('API: POST /api/searchProduct with missing parameter returns 400', async ({ request }) => {
+   await epic('API');
+    await feature('Products API');
+    await story ('Missing parameter');
+    await severity(Severity.MINOR);
     const response = await request.post('/api/searchProduct', { form: {} });
     const body = await response.json();
 

@@ -5,6 +5,7 @@ import { ViewCartPage } from '../pages/ViewCartPage';
 import { ProductDetailsPage } from '../pages/ProductDetailsPage';
 import { HomePage } from '../pages/HomePage';
 import { SignupLoginPage } from '../pages/SignupLoginPage';
+import { epic, feature, story, severity, Severity } from 'allure-js-commons';
 
 test.describe('Shopping and other flows', () => {
 
@@ -13,7 +14,12 @@ test.describe('Shopping and other flows', () => {
     await context.clearCookies();
   });
 
-  test('Search: keyword search returns only matching products @epic("Shopping") @feature("Product Search") @story("Keyword search") @severity("normal")', async ({ authenticatedShopPage }) => {
+  test('Search: keyword search returns only matching products', async ({ authenticatedShopPage }) => {
+    await epic('Shopping');
+    await feature('Product Search');
+    await story ('Keyword search');
+    await severity(Severity.NORMAL);
+    
     const page = authenticatedShopPage; 
     const productsPage = new ProductsPage(page);
 
@@ -26,7 +32,12 @@ test.describe('Shopping and other flows', () => {
     await productsPage.verifySearchResults();
   });
 
-  test('Cart: adding multiple products updates the item count @epic("Shopping") @feature("Cart") @story("Add multiple products") @severity("normal")', async ({ authenticatedShopPage }) => {
+  test('Cart: adding multiple products updates the item count', async ({ authenticatedShopPage }) => {
+    await epic('Shopping');
+    await feature('Cart');
+    await story('Add multiple products');
+    await severity(Severity.NORMAL);
+
     const page = authenticatedShopPage;
     const productsPage = new ProductsPage(page);
     const viewCartPage = new ViewCartPage(page);
@@ -45,7 +56,12 @@ test.describe('Shopping and other flows', () => {
     await viewCartPage.verifyRowDetails(1, 'Men Tshirt', 'Rs. 400');
   });
 
-  test('Cart: removing a product updates the item count @epic("Shopping") @feature("Cart") @story("Remove product") @severity("normal")', async ({ authenticatedShopPage }) => {
+  test('Cart: removing a product updates the item count', async ({ authenticatedShopPage }) => {
+    await epic('Shopping');
+    await feature('Cart');
+    await story('Remove product');
+    await severity(Severity.NORMAL);
+
     const page = authenticatedShopPage;
     const productsPage = new ProductsPage(page);
     const viewCartPage = new ViewCartPage(page);
@@ -64,7 +80,12 @@ test.describe('Shopping and other flows', () => {
     await expect(page).toHaveURL('/view_cart');
   });
 
-  test('Product detail: product info page shows correct data @epic("Shopping") @feature("Product Detail") @story("View product") @severity("minor")', async ({ authenticatedShopPage }) => {
+  test('Product detail: product info page shows correct data', async ({ authenticatedShopPage }) => {
+    await epic('Shopping');
+    await feature('Product Detail');
+    await story('View product info');
+    await severity(Severity.MINOR);
+
     const page = authenticatedShopPage;
     const productsPage = new ProductsPage(page);
     const productDetailsPage = new ProductDetailsPage(page);
@@ -79,7 +100,12 @@ test.describe('Shopping and other flows', () => {
     await productDetailsPage.verifyAddToCartButtonPresent();
   });
 
-  test('Subscription: subscribing from the footer shows a success message @epic("Marketing") @feature("Newsletter") @story("Footer-subscription") @severity("minor")', async ({ authenticatedShopPage }) => {        
+  test('Subscription: subscribing from the footer shows a success message', async ({ authenticatedShopPage }) => { 
+    await epic('Marketing');
+    await feature('Newsletter');
+    await story ('Footer subscription');
+    await severity(Severity.MINOR);
+    
     const page = authenticatedShopPage;
     const homePage = new HomePage(page);
     const uniqueEmail = `subscriber_${Date.now()}@example.com`;
@@ -93,7 +119,12 @@ test.describe('Shopping and other flows', () => {
     await expect(homePage.emailInput).toHaveValue('');
   });
 
-  test('Authenticated user is redirected away from the login page @epic("Session") @feature("Security") @story("Auth redirection") @severity("normal")', async ({ authenticatedShopPage }) => {
+  test('Authenticated user is redirected away from the login page', async ({ authenticatedShopPage }) => {
+    await epic('Auth');
+    await feature('Session');
+    await story ('Redirect logged-in user');
+    await severity(Severity.MINOR);
+
     const page = authenticatedShopPage;
     const homePage = new HomePage(page);
     const signupLoginPage = new SignupLoginPage(page);
