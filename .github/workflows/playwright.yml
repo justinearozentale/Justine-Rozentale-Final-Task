@@ -15,7 +15,6 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        # 🎯 Dynamic matrix matching your config projects array
         project: [ 'API Tests', 'chromium', 'webkit' ]
 
     steps:
