@@ -34,7 +34,7 @@ export class SignupLoginPage extends BasePage {
         await this.loginPasswordInput.fill(password);
         await this.loginButton.click();
 
-        // If the server oes blank, it forces a clean reload.
+        // If the server goes blank, it forces a clean reload
         await this.page.waitForURL('**/', { timeout: 4000 }).catch(async () => {
             console.log("⚠️ Server hung during login redirection. Triggering refresh step...");
             await this.page.reload({ waitUntil: 'load' }).catch(() => {});

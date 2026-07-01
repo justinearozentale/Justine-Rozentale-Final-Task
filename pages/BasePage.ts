@@ -9,7 +9,7 @@ export class BasePage {
     async waitForProductsData() {
         await this.page.waitForResponse(response => 
             response.url().includes('/api/productsList') && response.status() === 200,
-            { timeout: 5000 } // Safety timeout cap
+            { timeout: 5000 } 
         ).catch(() => {}); // Catch it safely if it already finished loading
     }
 }

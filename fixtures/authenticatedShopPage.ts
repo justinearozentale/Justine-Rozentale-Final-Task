@@ -1,12 +1,12 @@
 import { test as base, type Page } from '@playwright/test';
 
-// GLOBAL SESSION MEMORY: Remembers the user details across entire suite run
+// Remembers the user details across the entire suite run
 let registeredUserSession: any = null;
 
 export const test = base.extend<{ authenticatedShopPage: Page }>({
   authenticatedShopPage: async ({ page }, use, testInfo) => {
     
-    // 1. Block tracking scripts and consent banners cleanly
+    // 1. Block ads
     await page.route('**/*{google,doubleclick,adservice,analytics,fundingchoices}*/**', r => r.abort());
 
     const title = testInfo.title.toLowerCase();
@@ -15,7 +15,6 @@ export const test = base.extend<{ authenticatedShopPage: Page }>({
     if (title.includes('registers') || title.includes('purchase')) {
       
       if (!registeredUserSession) {
-        // STEP 1: REGISTER ONLY ONCE
         const timestamp = Date.now();
         registeredUserSession = {
           name: 'TestUser',
@@ -42,26 +41,10 @@ export const test = base.extend<{ authenticatedShopPage: Page }>({
         await page.click('[data-qa="continue-button"]');
         
         console.log(`✨ Registered successfully: ${registeredUserSession.email}`);
-      } else if (title.includes('purchase')) {
-      
-        // STEP 2: LOGIN USING THE EXACT SAME USER
-    
-        await page.goto('/login');
-        await page.fill('[data-qa="login-email"]', registeredUserSession.email);
-        await page.fill('[data-qa="login-password"]', registeredUserSession.password);
-        await page.click('[data-qa="login-button"]');
-        
-        console.log(`🔐 Logged in using existing account: ${registeredUserSession.email}`);
       }
 
       // Pass the active user reference back to the test variables
       (page as any).testUser = registeredUserSession;
-
-    } else {
-     
-      // STEP 3: SECOND TAB CLEAN GUEST SESSIONS
-   
-      // Skips everything above so shopping flows browse safely without accounts
     }
 
     await use(page);
